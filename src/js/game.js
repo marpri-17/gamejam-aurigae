@@ -17,6 +17,7 @@ var config = {
 };
 
 var score = 0;
+var player_health = 3;
 var timeLeft = 10;
 var timedLoop;
 var game = new Phaser.Game(config);
@@ -92,8 +93,14 @@ function create() {
   this.physics.add.collider(this.bricks, this.platforms);
   this.physics.add.collider(this.player, this.bricks, collideBrick, null, this);
 
+  //   lives = game.add.group();
+  //   lives.fixedToCamera = true;
+  //   for (var i = 0; i < player_health; i++) {
+  //     lives.create(300 - i * 30, 0, "heart");
+  //   }
   this.lives = this.add.image(75, 70, "heart");
   this.lives2 = this.add.image(115, 70, "heart");
+  this.lives3 = this.add.image(155, 70, "heart");
   this.scoreText = this.add.text(56, 16, "score: ", {
     fontSize: "32px",
     fill: "#ff0066"
