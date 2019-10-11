@@ -25,7 +25,7 @@ var game = new Phaser.Game(config);
 function preload() {
   this.load.image("background", "assets/bg-game.jpg");
   this.load.spritesheet('bird', 'assets/pajaro90b.png', { frameWidth: 81, frameHeight: 48 });
-  this.load.image("brick", "assets/ladrillo.png");
+  this.load.image("brick", "assets/bug.png");
   this.load.image("heart", "assets/CORAZON.png");
 
   this.load.image("coin", "assets/coinGold.png");
@@ -207,7 +207,7 @@ function collideBrick (player, brick) {
 }
 
   function createBody(arr, tipo) {
-    var body = arr.create(Phaser.Math.Between(100, 700), 20, tipo);
+    var body = arr.create(Phaser.Math.Between(100, 700), Phaser.Math.Between(20, 400), tipo);
     body.setBounce(1);
     body.setCollideWorldBounds(true);
     body.setVelocity(Phaser.Math.Between(-200, 200), 20);
@@ -218,6 +218,16 @@ function collectCoin(sprite, coin) {
   score++;
   this.scoreText.setText("Score: " + score);
 
+  if (score % 50 == 0) {
+    playerHealth++;
+    if (playerHealth == 3)
+      this.lives3 = this.add.image(155, 70, "heart");
+    else if (playerHealth == 2)
+      this.lives2 = this.add.image(115, 70, "heart");
+    else if (playerHealth == 1)
+      this.lives1 = this.add.image(75, 70, "heart");
+  }
+
   createBody(this.coins, "coin");
 
   return false;
@@ -226,6 +236,13 @@ function collectCoin(sprite, coin) {
 function generateObjects() {
   var result = Math.random() * (100 - 1) + 1;
 
-  if (result < 30) createBody(this.coins, 'coin');
-  else if (result > 70) createBody(this.bricks, 'brick');
+  if (this.player.invulnerable) {
+    for (i = 0; i < 10; i++)
+      createBody(this.coins, 'coin');
+    for (i = 0; i < 2; i++)
+      createBody(this.bricks, 'brick');
+  } else {
+    if (result < 30) createBody(this.coins, 'coin');
+    else if (result > 70) createBody(this.bricks, 'brick');
+  }
 }
