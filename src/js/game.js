@@ -21,10 +21,12 @@ var game = new Phaser.Game(config);
 
 function preload () {
     this.load.spritesheet('player', 'assets/dude2.png', { frameWidth: 32, frameHeight: 48 });
-    
+
     this.load.tilemapTiledJSON('map', 'assets/map.json');
     this.load.spritesheet('tiles', 'assets/tiles.png', {frameWidth: 70, frameHeight: 70});
     this.load.image('coin', 'assets/coinGold.png');
+
+    this.load.image('background', 'assets/bg-game.jpg');
 
     this.load.audio('dead', 'assets/audio/dead1.mp3');
     this.load.audio('touch', 'assets/audio/shield.mp3');
@@ -44,14 +46,14 @@ function create() {
     this.physics.world.bounds.height = this.groundLayer.height;
 
     this.player = this.physics.add.sprite(200, 200, 'player');
-    this.player.setBounce(0.2); 
+    this.player.setBounce(0.2);
     this.player.setCollideWorldBounds(true);
-    
+
     // small fix to our player images, we resize the physics body object slightly
     this.player.body.setSize(this.player.width, this.player.height - 8);
     this.physics.add.collider(this.groundLayer, this.player);
 
-    this.objectLayer.setTileIndexCallback(17, collectGem, this);  
+    this.objectLayer.setTileIndexCallback(17, collectGem, this);
     this.physics.add.overlap(this.player, this.objectLayer);
 
     // This is how we select the sprites for the animations
@@ -82,11 +84,11 @@ function create() {
         frameRate: 10,
         repeat: -1
     });
-    
+
     this.cursors = this.input.keyboard.createCursorKeys();
 
     this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-    this.cameras.main.startFollow(this.player); 
+    this.cameras.main.startFollow(this.player);
     this.cameras.main.setBackgroundColor('#afc4da');
 
     this.scoreText = this.add.text(20, 570, 'Score: 0', { fontSize: '32px', fill: '#ffffff' });
@@ -118,6 +120,5 @@ function update(time, delta) {
         this.player.anims.play('turn');
     }
 
-    if (this.cursors.up.isDown && this.player.body.onFloor()) this.player.body.setVelocityY(-500);        
+    if (this.cursors.up.isDown && this.player.body.onFloor()) this.player.body.setVelocityY(-500);
 }
-
