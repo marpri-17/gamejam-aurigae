@@ -23,7 +23,7 @@ var game = new Phaser.Game(config);
 
 function preload () {
     this.load.image('background', 'assets/bg-game.jpg');
-    this.load.spritesheet('mikari', 'assets/dude2.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('bug', 'assets/GUY2.png', { frameWidth: 40, frameHeight: 48 });
 
     this.load.audio('dead', 'assets/audio/dead1.mp3');
     this.load.audio('loop', 'assets/audio/ItchyBits.mp3');
@@ -32,22 +32,20 @@ function preload () {
 function create () {
     /* We create our world */
     this.platforms = this.physics.add.staticGroup();
-    this.platforms.create(400, 590, 'ground').setScale(2).refreshBody();
-    this.platforms.create(50, 250, 'ground');
-    this.platforms.create(750, 320, 'ground');
+    this.platforms.create(0, 250, 'ground');
 
     this.add.image(400, 300, 'background');
 
     /* We create our this.player */
 
-    this.player = this.physics.add.sprite(100, 450, 'mikari'); //Spritesheet
+    this.player = this.physics.add.sprite(400, 600, 'bug'); //Spritesheet
     this.player.setBounce(0.2);
     this.player.setCollideWorldBounds(true);
 
     // This is how we select the sprites for the animations
     this.anims.create({
         key: 'left',
-        frames: this.anims.generateFrameNumbers('mikari', {
+        frames: this.anims.generateFrameNumbers('bug', {
             start: 0,
             end: 3
         }),
@@ -58,14 +56,14 @@ function create () {
     this.anims.create({
         key: 'turn',
         frames: [{
-            key: 'mikari',
+            key: 'bug',
             frame: 4
         }]
     });
 
     this.anims.create({
         key: 'right',
-        frames: this.anims.generateFrameNumbers('mikari', {
+        frames: this.anims.generateFrameNumbers('bug', {
             start: 5,
             end: 8
         }),
@@ -89,7 +87,6 @@ function create () {
     this.timeLeftText = this.add.text(600, 16, 'Time: 10', { fontSize: '32px', fill: '#5CFFFC'});
     // Music
     this.music = this.sound.add('loop', { loop: true });
-    this.hitMusic = this.sound.add('touch', { loop: false });
     this.deadMusic = this.sound.add('dead', { loop: false });
     this.music.play();
 
