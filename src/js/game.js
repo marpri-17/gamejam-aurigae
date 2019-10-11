@@ -18,12 +18,12 @@ var config = {
 
 var score = 0;
 var timeLeft = 10;
-var timedLoop;
+var timedLoop, loopObjects;
 var game = new Phaser.Game(config);
 
 function preload () {
     this.load.image('background', 'assets/bg-game.jpg');
-    this.load.spritesheet('bug', 'assets/beetle.png', { frameWidth: 41, frameHeight: 36 });
+    this.load.spritesheet('bird', 'assets/pajarao9.png', { frameWidth: 60, frameHeight: 48 });
     this.load.image('brick', 'assets/ladrillo.png');
 
     this.load.image('coin', 'assets/coinGold.png');
@@ -41,14 +41,14 @@ function create () {
 
     /* We create our this.player */
 
-    this.player = this.physics.add.sprite(400, 600, 'bug'); //Spritesheet
+    this.player = this.physics.add.sprite(400, 600, 'bird'); //Spritesheet
     this.player.setBounce(0.2);
     this.player.setCollideWorldBounds(true);
 
     // This is how we select the sprites for the animations
     this.anims.create({
         key: 'left',
-        frames: this.anims.generateFrameNumbers('bug', {
+        frames: this.anims.generateFrameNumbers('bird', {
             start: 0,
             end: 3
         }),
@@ -59,14 +59,14 @@ function create () {
     this.anims.create({
         key: 'turn',
         frames: [{
-            key: 'bug',
+            key: 'bird',
             frame: 4
         }]
     });
 
     this.anims.create({
         key: 'right',
-        frames: this.anims.generateFrameNumbers('bug', {
+        frames: this.anims.generateFrameNumbers('bird', {
             start: 5,
             end: 8
         }),
@@ -84,7 +84,9 @@ function create () {
     // Add physics colliders
     this.physics.add.collider(this.player, this.platforms);
     this.physics.add.collider(this.bricks, this.platforms);
+    this.physics.add.collider(this.coins, this.platforms);
     this.physics.add.collider(this.player, this.bricks, collideBrick, null, this);
+    this.physics.add.collider(this.player, this.coins, collectCoin, null, this);
 
     this.scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#ff0066' });
     this.timeLeftText = this.add.text(600, 16, 'Time: 10', { fontSize: '32px', fill: '#5CFFFC'});
@@ -97,6 +99,13 @@ function create () {
     timedLoop = this.time.addEvent({
         delay: 1000,
         callback: updateCounter,
+        callbackScope: this,
+        loop: true
+    });
+
+    loopObjects = this.time.addEvent({
+        delay: 1000,
+        callback: generateObjects,
         callbackScope: this,
         loop: true
     });
@@ -155,9 +164,7 @@ function invulnerabilityModeOff() {
 }
 
 function collideBrick (player, brick) {
-    this.hitMusic.play();
-    blue.disableBody(true, true);
-    score = player.invulnerable ? score - 1 : score + 1;
+    brick.disableBody(true, true);
     this.scoreText.setText('Score: ' + score);
 
 
@@ -203,10 +210,20 @@ function createCoin(arr, tipo) {
     body.setVelocity(Phaser.Math.Between(-200, 200), 20);
 }
 
-function collectGem(sprite, gem) {
-    this.hitMusic.play();
-    this.objectLayer.removeTileAt(gem.x, gem.y);
+function collectCoin(sprite, coin) {
+    //this.hitMusic.play();
+    coin.disableBody(true, true);
     score++;
     this.scoreText.setText('Score: ' + score);
+
+    createBody(this.coins, 'coin');
+
     return false;
+}
+
+function generateObjects() {
+  var result = Math.random() * (100 - 1) + 1;
+
+  if (result < 10) createBody(this.coins, 'coin');
+  else if (result > 90) createBody(this.bricks, 'brick');
 }
