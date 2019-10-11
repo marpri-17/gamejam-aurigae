@@ -1,0 +1,35 @@
+{
+  "name": "what",
+  "description": "",
+  "readme": "",
+  "repository": "https://github.com/RubenUU/what",
+  "version": "0.0.0",
+  "dependencies": {
+    "natives": "^1.1.6",
+    "phaser": "^3.16.2"
+  },
+  "devDependencies": {
+    "bower": "*",
+    "gulp": "*",
+    "gulp-concat": "*",
+    "gulp-connect": "^5.7.0",
+    "gulp-download": "*",
+    "gulp-jshint": "*",
+    "gulp-minify-css": "*",
+    "gulp-minify-html": "*",
+    "gulp-processhtml": "*",
+    "gulp-rename": "*",
+    "gulp-rimraf": "*",
+    "gulp-uglify": "*",
+    "gulp-util": "*",
+    "gulp-watch": "*",
+    "jshint": "^2.10.2",
+    "tiny-lr": "*"
+  },
+  "scripts": {
+    "postinstall": "bower install",
+    "start": "gulp",
+    "build": "gulp build",
+    "lint": "gulp lint"
+  }
+}
