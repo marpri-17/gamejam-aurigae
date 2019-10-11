@@ -17,120 +17,109 @@ var config = {
 };
 
 var score = 0;
-var player_health = 3;
+var playerHealth = 3;
 var timeLeft = 10;
 var timedLoop, loopObjects;
 var game = new Phaser.Game(config);
 
 function preload() {
   this.load.image("background", "assets/bg-game.jpg");
-  this.load.spritesheet("bird", "assets/pajarao9.png", {
-    frameWidth: 60,
-    frameHeight: 48
-  });
+  this.load.spritesheet('bird', 'assets/pajaro90b.png', { frameWidth: 81, frameHeight: 48 });
   this.load.image("brick", "assets/ladrillo.png");
   this.load.image("heart", "assets/CORAZON.png");
 
   this.load.image("coin", "assets/coinGold.png");
-
   this.load.audio("dead", "assets/audio/dead1.mp3");
   this.load.audio("loop", "assets/audio/ItchyBits.mp3");
 }
 
-function create() {
-  /* We create our world */
-  this.platforms = this.physics.add.staticGroup();
-  this.platforms.create(0, 250, "ground");
+function create () {
+    /* We create our world */
+    this.platforms = this.physics.add.staticGroup();
+    this.platforms.create(0, 250, 'ground');
 
-  this.add.image(400, 300, "background");
+    this.add.image(400, 300, 'background');
 
-  /* We create our this.player */
+    /* We create our this.player */
 
-  this.player = this.physics.add.sprite(400, 600, "bird"); //Spritesheet
-  this.player.setBounce(0.2);
-  this.player.setCollideWorldBounds(true);
+    this.player = this.physics.add.sprite(400, 600, 'bird'); //Spritesheet
+    this.player.setBounce(0.2);
+    this.player.setCollideWorldBounds(true);
 
-  // This is how we select the sprites for the animations
-  this.anims.create({
-    key: "left",
-    frames: this.anims.generateFrameNumbers("bird", {
-      start: 0,
-      end: 3
-    }),
-    frameRate: 5,
-    repeat: -1
-  });
+    // This is how we select the sprites for the animations
+    this.anims.create({
+        key: 'left',
+        frames: this.anims.generateFrameNumbers('bird', {
+            start: 0,
+            end: 3
+        }),
+        frameRate: 5,
+        repeat: -1
+    });
 
-  this.anims.create({
-    key: "turn",
-    frames: [
-      {
-        key: "bird",
-        frame: 4
-      }
-    ]
-  });
+    this.anims.create({
+        key: 'turn',
+        frames: [{
+            key: 'bird',
+            frame: 4
+        }]
+    });
 
-  this.anims.create({
-    key: "right",
-    frames: this.anims.generateFrameNumbers("bird", {
-      start: 5,
-      end: 8
-    }),
-    frameRate: 5,
-    repeat: -1
-  });
+    this.anims.create({
+        key: 'right',
+        frames: this.anims.generateFrameNumbers('bird', {
+            start: 5,
+            end: 8
+        }),
+        frameRate: 5,
+        repeat: -1
+    });
 
-  // We create some stars
-  this.bricks = this.physics.add.group();
-  createBody(this.bricks, "brick");
+    // We create some stars
+    this.bricks = this.physics.add.group();
+    createBody(this.bricks, 'brick');
 
-  this.coins = this.physics.add.group();
-  createBody(this.coins, "coin");
+    this.coins = this.physics.add.group();
+    createBody(this.coins, 'coin');
 
-  // Add physics colliders
-  this.physics.add.collider(this.player, this.platforms);
-  this.physics.add.collider(this.bricks, this.platforms);
-  this.physics.add.collider(this.coins, this.platforms);
-  this.physics.add.collider(this.player, this.bricks, collideBrick, null, this);
-  this.physics.add.collider(this.player, this.coins, collectCoin, null, this);
+    // Add physics colliders
+    this.physics.add.collider(this.player, this.platforms);
+    this.physics.add.collider(this.bricks, this.platforms);
+    this.physics.add.collider(this.coins, this.platforms);
+    this.physics.add.collider(this.player, this.bricks, collideBrick, null, this);
+    this.physics.add.collider(this.player, this.coins, collectCoin, null, this);
 
-  //   lives = game.add.group();
-  //   lives.fixedToCamera = true;
-  //   for (var i = 0; i < player_health; i++) {
-  //     lives.create(300 - i * 30, 0, "heart");
-  //   }
-  this.lives = this.add.image(75, 70, "heart");
-  this.lives2 = this.add.image(115, 70, "heart");
-  this.lives3 = this.add.image(155, 70, "heart");
+    //   lives = game.add.group();
+    //   lives.fixedToCamera = true;
+    //   for (var i = 0; i < playerHealth; i++) {
+    //     lives.create(300 - i * 30, 0, "heart");
+    //   }
+    this.lives1 = this.add.image(75, 70, "heart");
+    this.lives2 = this.add.image(115, 70, "heart");
+    this.lives3 = this.add.image(155, 70, "heart");
 
-  this.scoreText = this.add.text(16, 16, "score: 0", {
-    fontSize: "32px",
-    fill: "#ff0066"
-  });
-  this.timeLeftText = this.add.text(600, 16, "Time: 10", {
-    fontSize: "32px",
-    fill: "#5CFFFC"
-  });
-  // Music
-  this.music = this.sound.add("loop", { loop: true });
-  this.deadMusic = this.sound.add("dead", { loop: false });
-  this.music.play();
+    this.scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#ff0066' });
+    this.timeLeftText = this.add.text(600, 16, 'Time: 10', { fontSize: '32px', fill: '#5CFFFC'});
+    // Music
+    this.music = this.sound.add('loop', { loop: true });
+    this.dead = this.sound.add('dead', { loop: false });
+    this.music.play();
 
-  // loop
-  timedLoop = this.time.addEvent({
-    delay: 1000,
-    callback: updateCounter,
-    callbackScope: this,
-    loop: true
-  });
+    // loop
+    timedLoop = this.time.addEvent({
+        delay: 1000,
+        callback: updateCounter,
+        callbackScope: this,
+        loop: true
+    });
 
-  loopObjects = this.time.addEvent({
-    delay: 1000,
-    callback: generateObjects,
-    callbackScope: this,
-    loop: true
-  });
+    loopObjects = this.time.addEvent({
+        delay: 3000,
+        callback: generateObjects,
+        callbackScope: this,
+        loop: true
+    });
+
 }
 
 function update() {
@@ -186,28 +175,25 @@ function invulnerabilityModeOff() {
   }
 }
 
-function collideBrick(player, brick) {
-  brick.disableBody(true, true);
-  this.scoreText.setText("Score: " + score);
+function collideBrick (player, brick) {
+    brick.disableBody(true, true);
+    if (this.player.invulnerable)
+      return false;
 
-  //  createBody(this.blues, 'blue');
-  var result = Math.random() * (100 - 1) + 1;
-
-  /*
-    if (result < 10) createBody(this.pinks, 'pink');
-    else if (result > 90) createBody(this.blues, 'blue');
-    */
-}
-
-/*
-function hitPink (player, pink) {
-    pink.disableBody(true, true);
-    if (!player.invulnerable) {
-        this.deadMusic.play();
+    if (playerHealth > 1) {
+      playerHealth--;
+      if (playerHealth == 2) {
+        this.lives3.destroy();
+      } else if (playerHealth == 1) {
+        this.lives2.destroy();
+      }
+    } else {
+        this.lives1.destroy();
+        this.dead.play();
         this.music.stop();
-        this.hitMusic.stop();
         this.physics.pause();
         timedLoop.remove();
+        loopObjects.remove();
         player.setTint(0xff0000);
         player.anims.play('turn');
         this.gameOverText = this.add.text(200, 200, 'GAME OVER', {
@@ -216,24 +202,18 @@ function hitPink (player, pink) {
         });
         //this.scene.remove();
     }
-}*/
 
-function createBody(arr, tipo) {
-  var body = arr.create(Phaser.Math.Between(100, 700), 20, tipo);
-  body.setBounce(1);
-  body.setCollideWorldBounds(true);
-  body.setVelocity(Phaser.Math.Between(-200, 200), 20);
+    return false;
 }
 
-function createCoin(arr, tipo) {
-  var body = arr.create(Phaser.Math.Between(100, 700), 20, tipo);
-  body.setBounce(1);
-  body.setCollideWorldBounds(true);
-  body.setVelocity(Phaser.Math.Between(-200, 200), 20);
+  function createBody(arr, tipo) {
+    var body = arr.create(Phaser.Math.Between(100, 700), 20, tipo);
+    body.setBounce(1);
+    body.setCollideWorldBounds(true);
+    body.setVelocity(Phaser.Math.Between(-200, 200), 20);
 }
 
 function collectCoin(sprite, coin) {
-  //this.hitMusic.play();
   coin.disableBody(true, true);
   score++;
   this.scoreText.setText("Score: " + score);
@@ -246,6 +226,6 @@ function collectCoin(sprite, coin) {
 function generateObjects() {
   var result = Math.random() * (100 - 1) + 1;
 
-  if (result < 10) createBody(this.coins, "coin");
-  else if (result > 90) createBody(this.bricks, "brick");
+  if (result < 30) createBody(this.coins, 'coin');
+  else if (result > 70) createBody(this.bricks, 'brick');
 }
