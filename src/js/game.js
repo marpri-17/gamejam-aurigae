@@ -23,7 +23,10 @@ var game = new Phaser.Game(config);
 
 function preload () {
     this.load.image('background', 'assets/bg-game.jpg');
-    this.load.spritesheet('bug', 'assets/GUY2.png', { frameWidth: 40, frameHeight: 48 });
+    this.load.spritesheet('bug', 'assets/beetle.png', { frameWidth: 41, frameHeight: 36 });
+    this.load.image('brick', 'assets/ladrillo.png');
+
+    this.load.image('coin', 'assets/coinGold.png');
 
     this.load.audio('dead', 'assets/audio/dead1.mp3');
     this.load.audio('loop', 'assets/audio/ItchyBits.mp3');
@@ -49,7 +52,7 @@ function create () {
             start: 0,
             end: 3
         }),
-        frameRate: 10,
+        frameRate: 5,
         repeat: -1
     });
 
@@ -67,21 +70,21 @@ function create () {
             start: 5,
             end: 8
         }),
-        frameRate: 10,
+        frameRate: 5,
         repeat: -1
     });
 
     // We create some stars
-    this.blues = this.physics.add.group();
-    this.pinks = this.physics.add.group();
-    createBody(this.blues, 'blue');
+    this.bricks = this.physics.add.group();
+    createBody(this.bricks, 'brick');
+
+    this.coins = this.physics.add.group();
+    createBody(this.coins, 'coin');
 
     // Add physics colliders
     this.physics.add.collider(this.player, this.platforms);
-    this.physics.add.collider(this.blues, this.platforms);
-    this.physics.add.collider(this.pinks, this.platforms);
-    this.physics.add.collider(this.player, this.blues, collectBlue, null, this);
-    this.physics.add.collider(this.player, this.pinks, hitPink, null, this);
+    this.physics.add.collider(this.bricks, this.platforms);
+    this.physics.add.collider(this.player, this.bricks, collideBrick, null, this);
 
     this.scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#ff0066' });
     this.timeLeftText = this.add.text(600, 16, 'Time: 10', { fontSize: '32px', fill: '#5CFFFC'});
@@ -151,21 +154,23 @@ function invulnerabilityModeOff() {
     }
 }
 
-function collectBlue (player, blue) {
+function collideBrick (player, brick) {
     this.hitMusic.play();
     blue.disableBody(true, true);
     score = player.invulnerable ? score - 1 : score + 1;
     this.scoreText.setText('Score: ' + score);
 
 
-    createBody(this.blues, 'blue');
-    createBody(this.pinks, 'pink');
+  //  createBody(this.blues, 'blue');
     var result = Math.random() * (100 - 1) + 1;
 
+/*
     if (result < 10) createBody(this.pinks, 'pink');
     else if (result > 90) createBody(this.blues, 'blue');
+    */
 }
 
+/*
 function hitPink (player, pink) {
     pink.disableBody(true, true);
     if (!player.invulnerable) {
@@ -182,11 +187,26 @@ function hitPink (player, pink) {
         });
         //this.scene.remove();
     }
-}
+}*/
 
 function createBody(arr, tipo) {
     var body = arr.create(Phaser.Math.Between(100, 700), 20, tipo);
     body.setBounce(1);
     body.setCollideWorldBounds(true);
     body.setVelocity(Phaser.Math.Between(-200, 200), 20);
+}
+
+function createCoin(arr, tipo) {
+    var body = arr.create(Phaser.Math.Between(100, 700), 20, tipo);
+    body.setBounce(1);
+    body.setCollideWorldBounds(true);
+    body.setVelocity(Phaser.Math.Between(-200, 200), 20);
+}
+
+function collectGem(sprite, gem) {
+    this.hitMusic.play();
+    this.objectLayer.removeTileAt(gem.x, gem.y);
+    score++;
+    this.scoreText.setText('Score: ' + score);
+    return false;
 }
