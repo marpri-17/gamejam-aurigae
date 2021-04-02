@@ -28,13 +28,20 @@ gulp.task('clean', function () {
   return stream;
 });
 
-gulp.task('copy', ['clean'], function () {
+gulp.task('copy', gulp.series('clean', function () {
   gulp.src(paths.assets)
     .pipe(gulp.dest(paths.dist + 'assets'))
     .on('error', gutil.log);
+}));
+
+gulp.task('lint', function() {
+  gulp.src(paths.js)
+    .pipe(jshint('.jshintrc'))
+    .pipe(jshint.reporter('default'))
+    .on('error', gutil.log);
 });
 
-gulp.task('uglify', ['clean','lint'], function () {
+gulp.task('uglify', gulp.series('clean','lint', function () {
   var srcs = [paths.libs[0], paths.js[0]];
 
   gulp.src(srcs)
@@ -42,9 +49,9 @@ gulp.task('uglify', ['clean','lint'], function () {
     .pipe(gulp.dest(paths.dist))
     .pipe(uglify({outSourceMaps: false}))
     .pipe(gulp.dest(paths.dist));
-});
+}));
 
-gulp.task('minifycss', ['clean'], function () {
+gulp.task('minifycss', gulp.series('clean', function () {
  gulp.src(paths.css)
     .pipe(minifycss({
       keepSpecialComments: false,
@@ -53,28 +60,21 @@ gulp.task('minifycss', ['clean'], function () {
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest(paths.dist))
     .on('error', gutil.log);
-});
+}));
 
-gulp.task('processhtml', ['clean'], function() {
+gulp.task('processhtml', gulp.series('clean', function() {
   gulp.src('src/index.html')
     .pipe(processhtml('index.html'))
     .pipe(gulp.dest(paths.dist))
     .on('error', gutil.log);
-});
+}));
 
-gulp.task('minifyhtml', ['clean'], function() {
+gulp.task('minifyhtml', gulp.series('clean', function() {
   gulp.src('dist/index.html')
     .pipe(minifyhtml())
     .pipe(gulp.dest(paths.dist))
     .on('error', gutil.log);
-});
-
-gulp.task('lint', function() {
-  gulp.src(paths.js)
-    .pipe(jshint('.jshintrc'))
-    .pipe(jshint.reporter('default'))
-    .on('error', gutil.log);
-});
+}));
 
 gulp.task('html', function(){
   gulp.src('src/*.html')
@@ -95,5 +95,5 @@ gulp.task('watch', function () {
   gulp.watch(['./src/index.html', paths.css, paths.js], ['html']);
 });
 
-gulp.task('default', ['connect', 'watch']);
-gulp.task('build', ['copy', 'uglify', 'minifycss', 'processhtml', 'minifyhtml']);
+gulp.task('default', gulp.series('connect', 'watch'));
+gulp.task('build', gulp.series('copy', 'uglify', 'minifycss', 'processhtml', 'minifyhtml'));
